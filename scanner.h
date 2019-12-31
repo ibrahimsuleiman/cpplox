@@ -1,20 +1,23 @@
-#ifndef SCANNER_H
-#define SCANNER_H
+#ifndef LOX_SCANNER_H
+#define LOX_SCANNER_H
 
-#include<string>
-#include<vector>
 #include<map>
-#include<variant>
 #include<memory>
+#include<string>
+#include<variant>
+#include<vector>
 
 #include"token.h"
 
+namespace lox{
 class Scanner {
-    typedef std::variant<double, std::string> Object;
 public:
     Scanner(const std::string& source);
-    Scanner(const Scanner&) = default;
+    /*only one instance of the scanner should be alive*/
+    Scanner(const Scanner&) = delete;
     ~Scanner() = default;
+
+
 
     std::vector<std::shared_ptr<Token> > scanTokens();
 
@@ -53,9 +56,9 @@ public:
 private:
     std::string source;
     std::vector<std::shared_ptr<Token> > tokens;
-    int start;
-    int current;
-    int line;
+    unsigned int start;
+    unsigned int current;
+    unsigned int line;
     std::map<std::string, TokenType> keywords =
     {
         {"and",      AND},
@@ -78,5 +81,7 @@ private:
 
 
 };
+
+} // namespace lox
 
 #endif

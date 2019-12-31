@@ -1,12 +1,13 @@
 #ifndef LOX_H
 #define LOX_H
 
-#include<iostream>
 #include<fstream>
+#include<iostream>
 #include<string>
 
 
-
+namespace lox
+{
 
 class Lox {
 public:
@@ -31,6 +32,7 @@ private:
 
 
 
+} //namespace lox
 
 
 #endif

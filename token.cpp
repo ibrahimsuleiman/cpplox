@@ -1,6 +1,9 @@
 #include"token.h"
 
 
+namespace lox
+{
+    
 Token::Token(TokenType type, std::string lexeme,Object literal, int line):
     type(type),
     lexeme(lexeme),
@@ -26,3 +29,4 @@ std::string Token::toString()
 
 
 }
+} //namespace lox

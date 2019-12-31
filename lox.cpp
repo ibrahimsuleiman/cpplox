@@ -3,8 +3,9 @@
 
 
 
-
-bool Lox::hadError = false;
+namespace lox
+{
+    bool Lox::hadError = false;
 
 void Lox::runPrompt()
 {
@@ -51,3 +52,4 @@ void Lox::runFile()
 
     run(buf);
 }
+}// namespace lox

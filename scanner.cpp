@@ -1,9 +1,10 @@
 #include"scanner.h"
 #include"lox.h"
 
+namespace lox
+{
 
-
-Scanner::Scanner(const std::string& source): line(1), source(source), current(0)
+Scanner::Scanner(const std::string& source): source(source),  start(0), current(0), line(1)
 {
 
 }
@@ -63,7 +64,7 @@ void Scanner::matchNumber()
         advance();
         while(isDigit(peek())) advance();
     }
-    std::string num = source.substr(start, current);
+    std::string num(&source[start], &source[current]);
     addToken(NUMBER, std::stod(num));
 }
 
@@ -157,3 +158,5 @@ void Scanner::scan()
     }
 
 }
+} // namespace lox
+

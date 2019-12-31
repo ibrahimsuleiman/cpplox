@@ -4,6 +4,9 @@
 #include<string>
 #include<variant>
 
+namespace lox
+{
+    
 enum TokenType
 {
     /*single-character tokens*/
@@ -25,9 +28,12 @@ enum TokenType
     END_OF_FILE
 };
 
+typedef std::variant<double, std::string> Object;
+
 class Token {
-    typedef std::variant<double, std::string> Object;
+   // typedef std::variant<double, std::string> Object;
 public:
+    Token() = default;
     Token(TokenType type, std::string lexeme,Object literal, int line);
     Token(const Token&) = default;
     ~Token()  = default;
@@ -42,5 +48,7 @@ private:
 
 };
 
+
+}// namespace lox
 
 #endif
