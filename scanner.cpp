@@ -23,7 +23,7 @@ std::vector<std::shared_ptr<Token> > Scanner::scanTokens()
         scan();
     }
 
-    tokens.push_back(std::shared_ptr<Token>(new Token(END_OF_FILE, "", "EOF", line)));
+    tokens.push_back(std::shared_ptr<Token>(new Token(END_OF_FILE, "__null__", "EOF", line)));
     return tokens;
 }
 
