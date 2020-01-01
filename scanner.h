@@ -22,7 +22,7 @@ public:
     std::vector<std::shared_ptr<Token> > scanTokens();
 
     void addToken(TokenType type) {
-        addToken(type, "");
+        addToken(type, "__null__");
     }
     void addToken(TokenType type, Object literal);
     void matchString();
