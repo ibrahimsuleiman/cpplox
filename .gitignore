@@ -2,3 +2,7 @@ file
 loxscan
 *.o
 .vscode/
+exprvisitor.cpp
+exprvisitor.h
+ast_printer.cpp
+ast
