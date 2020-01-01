@@ -263,12 +263,14 @@ namespace lox
                 return parenthesize("group", v);
             }
             virtual Result visitLiteralExpr(Literal& expr)override{
-                /* value is a variant of std::string and double*/
-               /* if(std::get<std::string>(expr.value) == "__null__" )
-                    return std::string("nil"); */
 
                 if(std::holds_alternative<std::string>(expr.value))
+                {
+                    if(std::get<std::string>(expr.value) == "__null__" )
+                        return std::string("nil");
                     return std::get<std::string>(expr.value);
+                }
+                    
                 else if(std::holds_alternative<double>(expr.value))
                     return std::to_string(std::get<double>(expr.value));
                 else 
