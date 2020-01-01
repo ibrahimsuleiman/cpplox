@@ -6,7 +6,7 @@
 
 namespace lox
 {
-    
+
 enum TokenType
 {
     /*single-character tokens*/
@@ -34,16 +34,16 @@ class Token {
    // typedef std::variant<double, std::string> Object;
 public:
     Token() = default;
-    Token(TokenType type, std::string lexeme,Object literal, int line);
+    Token(const TokenType& type, const std::string& lexeme,const Object& literal, int line);
     Token(const Token&) = default;
     ~Token()  = default;
     std::string toString();
 
-private:
+public:
     TokenType type;
     std::string lexeme;
     Object literal;
-    int line;
+    unsigned int line;
 
 
 };
