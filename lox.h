@@ -5,6 +5,7 @@
 #include<iostream>
 #include<string>
 
+#include"token.h"
 
 namespace lox
 {
@@ -22,6 +23,7 @@ public:
     {
         report(line, "", message);
     }
+    static void error(const Token& token, const std::string& msg);
     static void report(int line, const std::string& where, const std::string& message);
     static bool hadError;
 

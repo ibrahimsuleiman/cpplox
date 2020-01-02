@@ -1,5 +1,6 @@
 #include"lox.h"
 #include"scanner.h"
+#include"parser.h"
 
 
 
@@ -25,11 +26,20 @@ void Lox::run(const std::string& buf)
     if(hadError) exit(-1);
     auto scanner = std::unique_ptr<Scanner>(new Scanner(buf));
     auto tokens = scanner->scanTokens();
+    auto parser = std::make_unique<Parser>(tokens);
+    ExprPtr expression = parser->parse();
+    if(hadError) return;
 
-    for(auto t = tokens.begin(); t != tokens.end(); t++)
-    {
-        std::cout << (*t)->toString() << std::endl;
-    }
+    std::cout << AstNodePrinter().print(expression.get()) << std::endl;
+
+    
+}
+
+
+void Lox::error(const Token& token, const std::string& msg)
+{
+    if(token.type == END_OF_FILE) report(token.line, " at end", msg);
+    else report(token.line," at '" + token.lexeme + "'" , msg);
 }
 
 void Lox::report(int line, const std::string& where, const std::string& message)
