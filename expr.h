@@ -8,15 +8,17 @@
 
 #include"token.h"
 
+/*
+ ** This file is organized into 4 parts. We begin with a definition of 
+ ** the abstract interface for all AST nodes representing an expression, followed by a foward declaraction of 
+ ** the concrete expression classes. We then define an abstract visitor class to extend functionality of the
+ ** expression classes while keeping them small. Following that are the definitions of the 
+ ** expression classes. Lastly, we provide an AST printer, a concrete implementation of the ExprVisitor class 
+ */
+
 namespace lox
 {   
-/*
-** To keep the expression classes small, we use the visitor design pattern (actually, a tweaked version)
-** to add functionality.
-** Additionally, because the accept() method's return type depends on the expression, 
-** we use a template class
-**
-*/
+
 
  class ExprVisitor;
  typedef std::variant<double, std::string, Object> Result;
@@ -26,20 +28,25 @@ namespace lox
             Token oper;
             std::unique_ptr<Expression> left;
             std::unique_ptr<Expression> right;
-            /*the result of expressions can be one of these 3 types*/
+            /*
+            ** Because the accept() method's return type depends on the expression, 
+            ** we use an std::variant. My initial plan was to use templates, but runtime polymorphism and 
+            ** static polymorphism don't work well simultaneously
+            **
+            */
             typedef std::variant<double, std::string, Object> Result;
 
             virtual Result accept(ExprVisitor& visitor) = 0;
-            virtual ~Expression() = 0; /* must implement pure virtual dtor*/
+            virtual ~Expression() = default; /* must implement pure virtual dtor*/
             
             
     };
 
     /* pure virtual destructor definition*/
-    Expression::~Expression() = default;
+   // Expression::~Expression() = default;
 
     typedef std::unique_ptr<Expression> ExprPtr;  
-
+    /*foward declarations*/
     class Assign;
     class Binary;
     class Call;
@@ -72,8 +79,7 @@ namespace lox
             virtual ~ExprVisitor() = default;
     };
 
-/* class to print our AST's */
-
+    /*Expression classes defintion*/
     class Binary : public Expression {
         public:
             Binary(ExprPtr left, const Token& oper, ExprPtr right)
@@ -93,13 +99,12 @@ namespace lox
             std::vector<ExprPtr> args;
             ExprPtr callee;
             Call(const Token& paren, ExprPtr callee, std::vector<ExprPtr> args)
-            : paren(paren), callee(std::move(callee)), args(std::move(args)) {}
+            : paren(paren), args(std::move(args)), callee(std::move(callee)) {}
 
             Result accept(ExprVisitor& visitor) override{
                 return visitor.visitCallExpr(*this);
             }
     };
-
 
 
     class Get : public Expression {
@@ -211,7 +216,7 @@ namespace lox
     };
 
 
-   /*--------------------------*/
+   /* class to print our ast*/
   class AstNodePrinter : public ExprVisitor{
         public:
             std::string parenthesize(const std::string& name, std::vector<Expression*>& exprs){
@@ -245,18 +250,19 @@ namespace lox
                 std::get<std::string>(val) : std::string(" ");
     
             }
+            /* place holder std::string("") returns for some of these. Might implement lateron*/
             virtual Result visitAssignExpr(Assign& expr) override{
-                
+                return std::string("");                
             }
             virtual Result visitBinaryExpr(Binary& expr)override{
                 std::vector<Expression*> v = {expr.left.get(), expr.right.get()};
                 return parenthesize(expr.oper.lexeme, v);
             }
             virtual Result visitCallExpr(Call& expr)override{
-
+                return std::string("");
             }
             virtual Result visitGetExpr(Get& expr)override{
-
+                return std::string("");
             }
             virtual Result visitGroupingExpr(Grouping& expr)override{
                 std::vector<Expression*> v = {expr.expr.get()};
@@ -277,24 +283,25 @@ namespace lox
                     return std::string(" ");
                 
             }
+            
             virtual Result visitLogicalExpr(Logical& expr)override{
-
+                return std::string("");
             }
             virtual Result visitSetExpr(Set& expr)override{
-
+                return std::string("");
             }
             virtual Result visitSuperExpr(Super& expr)override{
-
+                return std::string("");
             }
             virtual Result visitThisExpr(This& expr)override{
-
+                return std::string("");
             }
             virtual Result visitUnaryExpr(Unary& expr)override{
                 std::vector<Expression*> v = {expr.right.get()};
                 return parenthesize(expr.oper.lexeme, v);
             }
             virtual Result visitVariableExpr(Variable& expr)override{
-
+                return std::string("");
             }
     };
 
