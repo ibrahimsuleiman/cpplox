@@ -28,7 +28,7 @@ enum TokenType
     END_OF_FILE
 };
 
-typedef std::variant<double, std::string> Object;
+typedef std::variant<double, std::string, bool> Object;
 
 class Token {
    // typedef std::variant<double, std::string> Object;
