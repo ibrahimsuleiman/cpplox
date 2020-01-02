@@ -72,13 +72,18 @@ void Scanner::matchIdentifier()
 {
     while(isalnum(peek()) || peek() == '_') advance();
 
-    /*is it a keyword? */
+    /*is it a keyword */
     std::string text (&source[start], &source[current]);
     TokenType t;
     if(keywords.find(text) == keywords.end()) t = IDENTIFIER;
     else t = keywords[text];
 
     addToken(t);
+}
+
+void Scanner::consumeMultiLineComment()
+{
+
 }
 void Scanner::scan()
 {
@@ -138,6 +143,20 @@ void Scanner::scan()
     case '"':
         matchString();
         break;
+    case '/':                                                       
+        if (match('/')) {                                             
+          // A comment goes until the end of the line.                
+          while (peek() != '\n' && !isAtEnd()) advance();             
+        }
+        /*TODO: Add support for multiline comments*/
+     /* else if(match('*'))
+        {
+            consumeMultiLineComment();
+        } */
+        else {                                                      
+          addToken(SLASH);                                            
+        }                                                             
+        break;     
     default:
         if(isDigit(c))
         {
@@ -149,7 +168,7 @@ void Scanner::scan()
         }
         else
         {
-            Lox::error(line, "Unexpected character.");
+            Lox::error(line, "Unexpected character.\n");
         }
 
 

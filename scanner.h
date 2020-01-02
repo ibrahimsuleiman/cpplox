@@ -28,6 +28,7 @@ public:
     void matchString();
     void matchNumber();
     void matchIdentifier();
+    void consumeMultiLineComment();
     void scan();
 
     /* Scanner only looks ahead at most 2 characters, so we disallow arbitrary peeking*/
