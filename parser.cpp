@@ -14,7 +14,7 @@ ExprPtr Parser::comma()
         ExprPtr right = expression();
         expr = ExprPtr(new Binary(std::move(expr), oper, std::move(right)));
     }
-
+    consume(SEMI_COLON, "Error. Expected ;");
     return expr;
 }
 
@@ -82,7 +82,7 @@ ExprPtr Parser::primary()
 {
     if (match({FALSE})) return ExprPtr(new Literal(false));      
     if (match({TRUE})) return ExprPtr(new Literal(true));        
-    if (match({NIL})) return ExprPtr(new Literal("__null__"));
+    if (match({NIL})) return ExprPtr(new Literal(nullptr));
 
     if (match({NUMBER, STRING})) {                           
       return ExprPtr(new Literal(previous()->literal));         
@@ -90,13 +90,13 @@ ExprPtr Parser::primary()
 
     if (match({LEFT_PAREN})) {                               
       ExprPtr expr = expression();                            
-      consume(RIGHT_PAREN, "Expect ')' after expression.\n");
+      consume(RIGHT_PAREN, "Expected ')' after expression.\n");
       return ExprPtr(new Grouping(std::move(expr)));                      
     }  
     /* if none of the above cases is matched, we're on a token that
     ** cant start an expression
     */  
-        throw ParseError::error(*peek(), "Expect expression.\n");                            
+        throw ParseError::error(*peek(), "Expected expression.\n");                            
 }
 
 Token Parser::consume(TokenType type, std::string message){
@@ -148,10 +148,10 @@ void Parser::synchronize()
 ExprPtr Parser::parse()
 {
     try{
-        return expression();
+        return comma();
     }catch(const ParseError& error)
     {
-        std::terminate();
+        return nullptr;
     }   
 }
 } // namespace lox
