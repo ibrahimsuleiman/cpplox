@@ -7,6 +7,7 @@
 namespace lox
 {
     bool Lox::hadError = false;
+    bool Lox::hadRuntimeError = false;
 
 void Lox::runPrompt()
 {
@@ -23,16 +24,20 @@ void Lox::runPrompt()
 
 void Lox::run(const std::string& buf)
 {
+    
     if(hadError) exit(-1);
     auto scanner = std::unique_ptr<Scanner>(new Scanner(buf));
+    
+    
     auto tokens = scanner->scanTokens();
+
     auto parser = std::make_unique<Parser>(tokens);
     ExprPtr expression = parser->parse();
     if(hadError) return;
-
-    std::cout << AstNodePrinter().print(expression.get()) << std::endl;
-
-    
+ 
+   // std::cout << AstNodePrinter().print(expression.get()) << std::endl;
+    static std::unique_ptr<Interpreter> interpreter = std::make_unique<Interpreter>();
+    interpreter->interpret(expression);   
 }
 
 
@@ -45,7 +50,7 @@ void Lox::error(const Token& token, const std::string& msg)
 void Lox::report(int line, const std::string& where, const std::string& message)
 {
     std::cout << "[line " << line << "] Error" << where << ": "
-              << message;
+              << message << std::endl;
     hadError = true;
 }
 
@@ -59,6 +64,9 @@ void Lox::runFile()
     {
         buf += line;
     }
+
+    if(hadError) std::exit(-1);
+    if(hadRuntimeError) std::exit(-2);
 
     run(buf);
 }

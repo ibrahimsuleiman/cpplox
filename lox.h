@@ -5,6 +5,7 @@
 #include<iostream>
 #include<string>
 
+#include"interpreter.h"
 #include"token.h"
 
 namespace lox
@@ -23,12 +24,20 @@ public:
     {
         report(line, "", message);
     }
+    static void runtimeError(const RuntimeError& err){
+        std::cerr << err.message() << 
+        "\n[line " << err.token.line << "]" << std::endl;
+        hadRuntimeError = true;
+    }
     static void error(const Token& token, const std::string& msg);
     static void report(int line, const std::string& where, const std::string& message);
     static bool hadError;
+    static bool hadRuntimeError;
+
 
 private:
     std::string source;
+    
 
 };
 
