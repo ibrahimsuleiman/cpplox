@@ -134,7 +134,7 @@ Object Interpreter::visitVariableExpr(Variable& expr){
     return nullptr;
 }
 
-std::string Interpreter::stringify(Object& obj)
+std::string Interpreter::stringify(const Object& obj)
 {
     if(std::holds_alternative<void*>(obj)) return std::string("nil");
 
@@ -151,11 +151,49 @@ std::string Interpreter::stringify(Object& obj)
     
     return std::get<std::string>(obj);
 }
-void Interpreter::interpret(ExprPtr& expression){
+
+void Interpreter::visitBlockStmt(Block& stmt){
+
+}
+void Interpreter::visitClassStmt(Class& stmt){
+
+}
+void Interpreter::visitExpressionStmt(Expression& stmt){
+    evaluate(stmt.expression);
+}
+void Interpreter::visitFunctionStmt(Function& stmt){
+
+}
+void Interpreter::visitIfStmt(If& stmt){
+
+}
+void Interpreter::visitPrintStmt(Print& stmt){
+    std::cout << stringify(evaluate(stmt.expression)) << std::endl;
+}
+void Interpreter::visitReturnStmt(Return& stmt){
+
+}
+void Interpreter::visitVarStmt(Var& stmt){
+
+}
+void Interpreter::visitWhileStmt(While& stmt){
+    
+}
+
+void Interpreter::execute(StmtPtr& statement)
+{
+    statement->accept(*this);
+}
+void Interpreter::interpret(std::vector<StmtPtr>& statements){
     try{
-        Object value = evaluate(expression);
-        std::cout << stringify(value) <<  "\n" <<std::endl;
-    }catch(const RuntimeError& err)
+
+        for(auto it = statements.begin(); it != statements.end(); ++it)
+        {
+            execute(*it);
+        }
+
+    }
+    catch(const RuntimeError& err)
     {
         Lox::runtimeError(err);
     }

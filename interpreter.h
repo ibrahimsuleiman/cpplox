@@ -2,9 +2,10 @@
 #define LOX_INTERPRETER_H
 
 #include"expr.h"
+#include"stmt.h"
 
 namespace lox{
-    class Interpreter : public ExprVisitor{
+    class Interpreter : public ExprVisitor, StmtVisitor{
         public:
             Interpreter() = default;
             ~Interpreter() = default;
@@ -21,14 +22,24 @@ namespace lox{
             virtual Object visitUnaryExpr(Unary& expr)override;
             virtual Object visitVariableExpr(Variable& expr)override;
 
+            virtual void visitBlockStmt(Block& stmt)override;
+            virtual void visitClassStmt(Class& stmt)override;
+            virtual void visitExpressionStmt(Expression& stmt)override;
+            virtual void visitFunctionStmt(Function& stmt)override;
+            virtual void visitIfStmt(If& stmt)override;
+            virtual void visitPrintStmt(Print& stmt)override;
+            virtual void visitReturnStmt(Return& stmt)override;
+            virtual void visitVarStmt(Var& stmt)override;
+            virtual void visitWhileStmt(While& stmt)override;
+
+            void execute(StmtPtr& expr);
             Object evaluate(ExprPtr& expr);
             bool isTruthy(const Object& obj);
             bool isEqual(const Object& a, const Object& b);
             void checkNumberOperand(const Token& oper, const Object& operand);
             void checkNumberOperands(const Token& oper, const Object& left, const Object& right);
-            /* The expression is already owned by an RAII object in our AST. Thus, we pass by reference*/
-            void interpret(ExprPtr& expr);
-            std::string stringify(Object& expr);
+            void interpret(std::vector<StmtPtr>& expr);
+            std::string stringify(const Object& expr);
 
     };
 
