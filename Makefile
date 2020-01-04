@@ -11,7 +11,7 @@ parser.o: parser.h
 
 token.o: token.h
 
-interpreter.o: interpreter.h lox.h
+interpreter.o: interpreter.h lox.h stmt.h
 
 lox.o: lox.h scanner.h
 
