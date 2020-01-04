@@ -24,11 +24,11 @@ namespace lox
 
  
 
- class Expression{
+ class Expr{
         public:
             Token oper;
-            std::unique_ptr<Expression> left;
-            std::unique_ptr<Expression> right;
+            std::unique_ptr<Expr> left;
+            std::unique_ptr<Expr> right;
             /*
             ** Because the accept() method's return type depends on the expression, 
             ** we use an std::variant. My initial plan was to use templates, but runtime polymorphism and 
@@ -36,15 +36,15 @@ namespace lox
             **
             */
             virtual Object accept(ExprVisitor& visitor) = 0;
-            virtual ~Expression() = default; /* must implement pure virtual dtor*/
+            virtual ~Expr() = default; /* must implement pure virtual dtor*/
             
             
     };
 
     /* pure virtual destructor definition*/
-   // Expression::~Expression() = default;
+   // Expr::~Expr() = default;
 
-    typedef std::unique_ptr<Expression> ExprPtr;  
+    typedef std::unique_ptr<Expr> ExprPtr;  
     /*foward declarations*/
     class Assign;
     class Binary;
@@ -58,7 +58,7 @@ namespace lox
     class This;
     class Unary;
     class Variable;
-    class Expression;
+    class Expr;
 
  class ExprVisitor{
         public:
@@ -78,8 +78,11 @@ namespace lox
             virtual ~ExprVisitor() = default;
     };
 
-    /*Expression classes defintion*/
-    class Binary : public Expression {
+    /*Expr classes defintion*/
+    /* These classes are non copyable because they derive from a base class with
+    ** non copyable std::unique_ptr's
+    */
+    class Binary : public Expr {
         public:
             Binary(ExprPtr left, const Token& oper, ExprPtr right)
             {
@@ -92,7 +95,7 @@ namespace lox
             }
     };
 
-    class Call : public Expression {
+    class Call : public Expr {
         public:
             Token paren;
             std::vector<ExprPtr> args;
@@ -106,7 +109,7 @@ namespace lox
     };
 
 
-    class Get : public Expression {
+    class Get : public Expr {
         public:
             ExprPtr object;
             Token name;
@@ -118,7 +121,7 @@ namespace lox
             }
     };
 
-    class Grouping : public Expression {
+    class Grouping : public Expr {
         public:
             ExprPtr expr;
             Grouping(ExprPtr expr):expr(std::move(expr)){}
@@ -128,7 +131,7 @@ namespace lox
             }    
     };
 
-    class Literal : public Expression {
+    class Literal : public Expr {
         public:
             Object value;
             Literal(const Object& value): value(value){}
@@ -138,7 +141,7 @@ namespace lox
             }
     };
 
-    class Logical : public Expression {
+    class Logical : public Expr {
         public:
             Logical(ExprPtr left, const Token& oper, ExprPtr right)
             {
@@ -151,7 +154,7 @@ namespace lox
             }
     };
 
-    class Set : public Expression {
+    class Set : public Expr {
         public:
             ExprPtr object;
             Token name;
@@ -166,7 +169,7 @@ namespace lox
 
     };
 
-    class Super : public Expression {
+    class Super : public Expr {
         public:
             Token keyword;
             Token method;
@@ -178,7 +181,7 @@ namespace lox
 
     };
 
-    class This : public Expression {
+    class This : public Expr {
         public:
             Token keyword;
             This(const Token& keyword): keyword(keyword){}
@@ -189,7 +192,7 @@ namespace lox
 
     };
 
-    class Unary : public Expression {
+    class Unary : public Expr {
         public:
             Unary(const Token& oper, ExprPtr right)
             {
@@ -202,11 +205,12 @@ namespace lox
 
     };
 
-    class Variable : public Expression {
+    class Variable : public Expr {
         public:
+
             Token name;
             Variable(const Token& name): name(name){}
-
+  
             Object accept(ExprVisitor& visitor) override{
                 return visitor.visitVariableExpr(*this);
             }
@@ -218,7 +222,7 @@ namespace lox
    /* class to print our ast*/
   class AstNodePrinter : public ExprVisitor{
         public:
-            std::string parenthesize(const std::string& name, std::vector<Expression*>& exprs){
+            std::string parenthesize(const std::string& name, std::vector<Expr*>& exprs){
 
                 std::string AstString("(" + name);
                  
@@ -242,7 +246,7 @@ namespace lox
                 return AstString;         
             }
 
-            std::string print(Expression* expr){
+            std::string print(Expr* expr){
 
                 auto val = expr->accept(*this);
                 return std::holds_alternative<std::string>(val) ?
@@ -254,7 +258,7 @@ namespace lox
                 return std::string("");                
             }
             virtual Object visitBinaryExpr(Binary& expr)override{
-                std::vector<Expression*> v = {expr.left.get(), expr.right.get()};
+                std::vector<Expr*> v = {expr.left.get(), expr.right.get()};
                 return parenthesize(expr.oper.lexeme, v);
             }
             virtual Object visitCallExpr(Call& expr)override{
@@ -264,7 +268,7 @@ namespace lox
                 return std::string("");
             }
             virtual Object visitGroupingExpr(Grouping& expr)override{
-                std::vector<Expression*> v = {expr.expr.get()};
+                std::vector<Expr*> v = {expr.expr.get()};
                 return parenthesize("group", v);
             }
             virtual Object visitLiteralExpr(Literal& expr)override{
@@ -284,7 +288,7 @@ namespace lox
             }
             
             virtual Object visitLogicalExpr(Logical& expr)override{
-                std::vector<Expression*> v = {expr.left.get(), expr.right.get()};
+                std::vector<Expr*> v = {expr.left.get(), expr.right.get()};
                 return parenthesize(expr.oper.lexeme, v);
             }
             virtual Object visitSetExpr(Set& expr)override{
@@ -297,7 +301,7 @@ namespace lox
                 return std::string("");
             }
             virtual Object visitUnaryExpr(Unary& expr)override{
-                std::vector<Expression*> v = {expr.right.get()};
+                std::vector<Expr*> v = {expr.right.get()};
                 return parenthesize(expr.oper.lexeme, v);
             }
             virtual Object visitVariableExpr(Variable& expr)override{
