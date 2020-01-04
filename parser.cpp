@@ -5,6 +5,25 @@ namespace lox{
 Parser::Parser(const std::vector<std::shared_ptr<Token> >& tokens)
 : current(0), tokens(tokens) {}
 
+
+StmtPtr Parser::statement(){
+    if (match({PRINT})) return printStatement();
+    return expressionStatement(); 
+}
+
+StmtPtr Parser::expressionStatement(){
+    ExprPtr expr = comma();                          
+    consume(SEMI_COLON, "Expect ';' after expression.");
+    return StmtPtr(new Expression(std::move(expr)));
+}
+
+StmtPtr Parser::printStatement(){
+    ExprPtr value = expression();   
+
+    consume(SEMI_COLON, "Expect ';' after value.");
+    return StmtPtr(new Print(std::move(value)));
+}
+
 ExprPtr Parser::comma()
 {
     ExprPtr expr = expression();
@@ -14,7 +33,7 @@ ExprPtr Parser::comma()
         ExprPtr right = expression();
         expr = ExprPtr(new Binary(std::move(expr), oper, std::move(right)));
     }
-    consume(SEMI_COLON, "Error. Expected ;");
+
     return expr;
 }
 
@@ -145,13 +164,15 @@ void Parser::synchronize()
     }
 }
 
-ExprPtr Parser::parse()
+std::vector<StmtPtr> Parser::parse()
 {
-    try{
-        return comma();
-    }catch(const ParseError& error)
-    {
-        return nullptr;
-    }   
+        std::vector<StmtPtr> statements;
+        while(!isAtEnd())
+        {
+            statements.push_back(statement());
+        }
+
+        return statements;
+
 }
 } // namespace lox
