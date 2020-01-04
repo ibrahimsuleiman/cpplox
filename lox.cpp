@@ -30,14 +30,21 @@ void Lox::run(const std::string& buf)
     
     
     auto tokens = scanner->scanTokens();
-
+/* allows lox to continue to accept input after a comment in interactive mode*/
+    if(tokens[0]->type == END_OF_FILE) return;
+    
     auto parser = std::make_unique<Parser>(tokens);
-    ExprPtr expression = parser->parse();
+
+    /* We rely on copy elision to move construct statements from the non-copyable type
+    ** returned by parse()
+    */
+    auto statements = parser->parse();
+
     if(hadError) return;
  
-   // std::cout << AstNodePrinter().print(expression.get()) << std::endl;
+    //std::cout << AstNodePrinter().print(expression.get()) << std::endl;
     static std::unique_ptr<Interpreter> interpreter = std::make_unique<Interpreter>();
-    interpreter->interpret(expression);   
+    interpreter->interpret(statements);   
 }
 
 
