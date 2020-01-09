@@ -1,5 +1,5 @@
 OBJECTS = scanner.o lox.o token.o parser.o main.o interpreter.o
-CXXFLAGS= -std=c++17 -Wall -lstdc++
+CXXFLAGS= -std=c++17 -Wall -lstdc++ -g
 CXX = g++
 
 all: $(OBJECTS)
@@ -11,9 +11,9 @@ parser.o: parser.h
 
 token.o: token.h
 
-interpreter.o: interpreter.h lox.h stmt.h
+interpreter.o: interpreter.h lox.h stmt.h environment.h
 
-lox.o: lox.h scanner.h
+lox.o: lox.h scanner.h environment.h
 
 main.o: lox.h
 
