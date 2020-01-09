@@ -6,21 +6,72 @@ Parser::Parser(const std::vector<std::shared_ptr<Token> >& tokens)
 : current(0), tokens(tokens) {}
 
 
+StmtPtr Parser::declaration()
+{
+
+    try
+    {
+        if(match({VAR})) return varDeclaration();
+
+        return statement();
+            
+        
+    }
+    catch(const ParseError& err)
+    {       /*
+            ** The declaration function is what is called
+            ** repeatedly when we parse a list of statements.
+            ** It is thus the right place to synchronize the 
+            ** parser when it goes into panic mode
+            */
+        synchronize();
+        return nullptr;
+    }
+    
+}
+
+StmtPtr Parser::varDeclaration(){
+    Token name = consume(IDENTIFIER, "Expected variable name.");
+
+    ExprPtr initializer;
+
+    if(match({EQUAL}))
+    {   /* copy elision, aka move asgnt operator */
+        initializer = expression();
+    }
+
+    consume(SEMI_COLON, "Expected ';' after variable declaration.");
+    return StmtPtr(new Var(name, std::move(initializer)));
+}
 StmtPtr Parser::statement(){
     if (match({PRINT})) return printStatement();
+    if (match({LEFT_BRACE})) return StmtPtr(new Block(block()));
     return expressionStatement(); 
+}
+
+std::vector<StmtPtr> Parser::block()
+{
+    std::vector<StmtPtr> statements;
+
+    while(!check(RIGHT_BRACE) && !isAtEnd())
+    {
+        statements.push_back(declaration());
+    }
+
+    consume(RIGHT_BRACE, "Expected '}' after block.");
+    return statements;
 }
 
 StmtPtr Parser::expressionStatement(){
     ExprPtr expr = comma();                          
-    consume(SEMI_COLON, "Expect ';' after expression.");
+    consume(SEMI_COLON, "Expected ';' after expression.");
     return StmtPtr(new Expression(std::move(expr)));
 }
 
 StmtPtr Parser::printStatement(){
     ExprPtr value = expression();   
 
-    consume(SEMI_COLON, "Expect ';' after value.");
+    consume(SEMI_COLON, "Expected ';' after value.");
     return StmtPtr(new Print(std::move(value)));
 }
 
@@ -37,8 +88,30 @@ ExprPtr Parser::comma()
     return expr;
 }
 
+ExprPtr Parser::assignment(){
+    ExprPtr expr = equality();
+
+    if(match({EQUAL}))
+    {
+        Token equals = *previous();
+        /* We recursively call assignment to parse the RHS, because
+        ** it is right associative
+        */
+        ExprPtr value = assignment();
+
+        /* is expr an instance of Variable* ?*/
+        if(dynamic_cast<Variable*>(expr.get()) != nullptr)
+        {
+            return ExprPtr(new Assign(dynamic_cast<Variable*>(expr.get())->name, std::move(value)));
+        }
+
+        Lox::error(equals, "Invalid assignment target.");
+    }
+
+    return expr;
+}
 ExprPtr Parser::expression(){
-    return equality();
+    return assignment();
 }
 
 ExprPtr Parser::equality(){
@@ -112,6 +185,12 @@ ExprPtr Parser::primary()
       consume(RIGHT_PAREN, "Expected ')' after expression.\n");
       return ExprPtr(new Grouping(std::move(expr)));                      
     }  
+
+    if(match({VAR})) return ExprPtr(new Variable(*previous()));
+
+    if(match({IDENTIFIER})) return ExprPtr(new Variable(*previous()));
+
+    
     /* if none of the above cases is matched, we're on a token that
     ** cant start an expression
     */  
@@ -127,8 +206,9 @@ bool Parser::match(const std::vector<TokenType>& types)
 {
     for(TokenType t: types)
     {
+        
         if(check(t))
-        {
+        { 
             advance();
             return true;
         }
@@ -166,13 +246,13 @@ void Parser::synchronize()
 
 std::vector<StmtPtr> Parser::parse()
 {
-        std::vector<StmtPtr> statements;
+        std::vector<StmtPtr> declarations;
         while(!isAtEnd())
         {
-            statements.push_back(statement());
+            declarations.push_back(declaration());
         }
 
-        return statements;
+        return declarations;
 
 }
 } // namespace lox

@@ -15,12 +15,16 @@
 /*
 ** The grammar for lox is defined as follows:
 ** -------------------------------------------------------------
-** program        --> statement* EOF;
-** statement      --> ExprStmt | printStmt;
+** program        --> declaration* EOF;
+** declaration    --> varDecl | statement;
+** varDecl        --> "var" IDENTIFIER ("=" expression)? ";" ;
+** statement      --> ExprStmt | printStmt | block;
+** block          --> "{" declaration* "}";
 ** exprStmt       --> expression ";" ;
 ** printStmt      --> "print" expression ";" ;
 ** comma          --> expression ((",") expression)*
-** expression     --> equality ;
+** expression     --> assignment;
+** assignment     -->  IDENTIFIER "=" assignment | equality ;
 ** equality       --> comparison ( ( "!=" | "==" ) comparison )* ;
 ** comparison     --> addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 ** addition       --> multiplication ( ( "-" | "+" ) multiplication )* ;
@@ -28,18 +32,28 @@
 ** unary          -->  ( "!" | "-" ) unary
 **                 | primary ;
 ** primary        --> NUMBER | STRING | "false" | "true" | "nil"
-**                   | "(" expression ")" ;
+**                   | "(" expression ")" | IDENTIFIER;
 */
 
 namespace lox{
+
+    /*
+    ** The following class implements defines the interface for a recursive descent
+    ** parser for the grammar specified above
+    */
     class Parser{
         public:
             Parser(const std::vector<std::shared_ptr<Token> >& tokens);
+        
+            StmtPtr declaration();
+            StmtPtr varDeclaration();
             StmtPtr statement();
+            std::vector<StmtPtr> block();
             StmtPtr expressionStatement();
             StmtPtr printStatement();
             ExprPtr comma();
             ExprPtr expression();
+            ExprPtr assignment();
             ExprPtr equality();
             ExprPtr comparison();
             ExprPtr addition();
