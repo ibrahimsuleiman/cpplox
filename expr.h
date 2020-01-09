@@ -82,6 +82,18 @@ namespace lox
     /* These classes are non copyable because they derive from a base class with
     ** non copyable std::unique_ptr's
     */
+
+    class Assign : public Expr{
+        public:
+        /*We expect an "l-value" here, so the left side of our AST is a Token*/
+            Token name;
+            ExprPtr value;
+            Assign(const Token& name, ExprPtr value): name(name), value(std::move(value)){}
+            
+            Object accept(ExprVisitor& visitor){
+                return visitor.visitAssignExpr(*this);
+            }
+    };
     class Binary : public Expr {
         public:
             Binary(ExprPtr left, const Token& oper, ExprPtr right)

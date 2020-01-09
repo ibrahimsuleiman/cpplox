@@ -15,7 +15,7 @@ namespace lox{
     class Stmt{
         public:
             virtual void accept(StmtVisitor& visitor) = 0;
-            ~Stmt() = default;
+            virtual ~Stmt() = default;
 
     };
 
@@ -46,14 +46,14 @@ namespace lox{
             virtual void visitReturnStmt(Return& stmt) = 0;
             virtual void visitVarStmt(Var& stmt) = 0;
             virtual void visitWhileStmt(While& stmt) = 0;
-            ~StmtVisitor() = default;
+            virtual ~StmtVisitor() = default;
             
     };
 
     class Block : public Stmt{
         public:
             std::vector<StmtPtr> statements;
-            Block(std::vector<StmtPtr>& statements):statements(std::move(statements)){}
+            Block(std::vector<StmtPtr> statements):statements(std::move(statements)){}
             void accept(StmtVisitor& visitor)override{
                 visitor.visitBlockStmt(*this);
             }
@@ -87,7 +87,7 @@ namespace lox{
             Function(const Token& name, const std::vector<Token>& params, std::vector<StmtPtr>& body)
             :name(name), params(params), body(std::move(body)){}
 
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitFunctionStmt(*this);
             }
     };
@@ -99,7 +99,7 @@ namespace lox{
             If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
             :condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(thenBranch)){}
 
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitIfStmt(*this);
             }
     };
@@ -108,7 +108,7 @@ namespace lox{
             ExprPtr expression;
             Print(ExprPtr expression):expression(std::move(expression)){}
             
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitPrintStmt(*this);
             }
     };
@@ -118,7 +118,7 @@ namespace lox{
             ExprPtr value;
             Return(const Token& keyword, ExprPtr value): keyword(keyword), value(std::move(value)){}
 
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitReturnStmt(*this);
             }
     };
@@ -128,7 +128,7 @@ namespace lox{
             ExprPtr initializer;
             Var(const Token& name, ExprPtr initializer): name(name), initializer(std::move(initializer)){}
             
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitVarStmt(*this);
             }
         
@@ -139,7 +139,7 @@ namespace lox{
             StmtPtr body;
             While(ExprPtr condition, StmtPtr body): condition(std::move(condition)), body(std::move(body)){}
 
-            void accept(StmtVisitor& visitor){
+            void accept(StmtVisitor& visitor)override{
                 visitor.visitWhileStmt(*this);
             }
     };
