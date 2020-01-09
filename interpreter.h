@@ -1,14 +1,18 @@
 #ifndef LOX_INTERPRETER_H
 #define LOX_INTERPRETER_H
 
+
 #include"expr.h"
 #include"stmt.h"
 
 namespace lox{
+
+    class Environment;
+
     class Interpreter : public ExprVisitor, StmtVisitor{
         public:
-            Interpreter() = default;
-            ~Interpreter() = default;
+            Interpreter();
+            ~Interpreter();
             virtual Object visitAssignExpr(Assign& expr)override;
             virtual Object visitBinaryExpr(Binary& expr)override;
             virtual Object visitCallExpr(Call& expr)override;
@@ -33,6 +37,7 @@ namespace lox{
             virtual void visitWhileStmt(While& stmt)override;
 
             void execute(StmtPtr& expr);
+            void executeBlock(std::vector<StmtPtr>& statements, std::unique_ptr<Environment> environment);
             Object evaluate(ExprPtr& expr);
             bool isTruthy(const Object& obj);
             bool isEqual(const Object& a, const Object& b);
@@ -40,23 +45,30 @@ namespace lox{
             void checkNumberOperands(const Token& oper, const Object& left, const Object& right);
             void interpret(std::vector<StmtPtr>& expr);
             std::string stringify(const Object& expr);
+        private:
+            std::unique_ptr<Environment> environment;
+            /* to be used to swap in the correct environment
+            ** in case executeBlock() throws
+            */
+            std::unique_ptr<Environment> previous;
 
     };
 
     class RuntimeError : public std::exception{
         public:
-            RuntimeError(const Token& token, const char *msg):token(token), msg(msg){}
+            RuntimeError(const Token& token, const std::string& msg):token(token), msg(msg){}
             const char* what() const noexcept override
             {
                 return "Runtime error";
             } 
-            const char* message()const{
+            std::string message()const{
                 return msg;
             }
             friend class Lox;
+            friend class Environment;
         private:
             Token token;
-            const char* msg;
+            std::string msg;
     };
 } // namespace lox
 #endif

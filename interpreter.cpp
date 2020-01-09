@@ -1,8 +1,20 @@
 #include"interpreter.h"
+#include"environment.h"
 #include"lox.h"
 
 namespace lox{
 
+Interpreter::Interpreter():environment(new Environment()){}
+
+
+Interpreter::~Interpreter() {
+    /*since we declared the interpreteer static inside of lox, 
+    **we want to return to the enclosing scope
+    **see the definition of executeBlock for details
+    **
+        */
+    std::swap(previous, environment);
+}
 Object Interpreter::evaluate(ExprPtr& expr){
     return expr->accept(*this);
 }
@@ -39,7 +51,10 @@ void Interpreter::checkNumberOperands(const Token& oper, const Object& left, con
 }
 
 Object Interpreter::visitAssignExpr(Assign& expr){
-    return nullptr;
+    Object value = evaluate(expr.value);
+
+    environment->assign(expr.name, value);
+    return value;
 }
 Object Interpreter::visitBinaryExpr(Binary& expr){
     Object left = evaluate(expr.left);
@@ -131,7 +146,7 @@ Object Interpreter::visitUnaryExpr(Unary& expr){
     return nullptr;
 }
 Object Interpreter::visitVariableExpr(Variable& expr){
-    return nullptr;
+    return environment->get(expr.name);
 }
 
 std::string Interpreter::stringify(const Object& obj)
@@ -152,8 +167,31 @@ std::string Interpreter::stringify(const Object& obj)
     return std::get<std::string>(obj);
 }
 
-void Interpreter::visitBlockStmt(Block& stmt){
 
+void Interpreter::executeBlock(std::vector<StmtPtr>& statements, std::unique_ptr<Environment> env)
+{
+
+    std::swap(previous, environment);
+
+    this->environment.reset();
+    this->environment = std::move(env);
+
+    for(auto it = statements.begin(); it != statements.end(); ++it)
+    {
+        execute(*it);
+    }
+   
+   /*The previous environment should be restored here. 
+   ** But execute can throw an excpetion, so we restore the
+   ** environment here and in the destructor of Interpreter. If execute() emits
+   ** an exception, the destructor of interpreter should restore the environment
+   */
+   std::swap(previous, environment);
+
+}
+void Interpreter::visitBlockStmt(Block& stmt){
+    executeBlock(stmt.statements, 
+    std::move(std::unique_ptr<Environment>(new Environment(environment.get()))));
 }
 void Interpreter::visitClassStmt(Class& stmt){
 
@@ -168,13 +206,18 @@ void Interpreter::visitIfStmt(If& stmt){
 
 }
 void Interpreter::visitPrintStmt(Print& stmt){
-    std::cout << stringify(evaluate(stmt.expression)) << std::endl;
+    std::cout << stringify(evaluate(stmt.expression))<< "\n" << std::endl;
 }
 void Interpreter::visitReturnStmt(Return& stmt){
 
 }
 void Interpreter::visitVarStmt(Var& stmt){
-
+    Object value = nullptr;
+    if(stmt.initializer != nullptr)
+    {
+        value = evaluate(stmt.initializer);
+    }
+    environment->define(stmt.name.lexeme, value);
 }
 void Interpreter::visitWhileStmt(While& stmt){
     
@@ -190,6 +233,7 @@ void Interpreter::interpret(std::vector<StmtPtr>& statements){
         for(auto it = statements.begin(); it != statements.end(); ++it)
         {
             execute(*it);
+            
         }
 
     }
