@@ -1,7 +1,9 @@
+#include<sstream>
+
+#include"environment.h"
 #include"lox.h"
 #include"scanner.h"
 #include"parser.h"
-
 
 
 namespace lox
@@ -30,21 +32,20 @@ void Lox::run(const std::string& buf)
     
     
     auto tokens = scanner->scanTokens();
-/* allows lox to continue to accept input after a comment in interactive mode*/
-    if(tokens[0]->type == END_OF_FILE) return;
-    
+
     auto parser = std::make_unique<Parser>(tokens);
 
     /* We rely on copy elision to move construct statements from the non-copyable type
     ** returned by parse()
     */
+    
     auto statements = parser->parse();
 
     if(hadError) return;
  
-    //std::cout << AstNodePrinter().print(expression.get()) << std::endl;
     static std::unique_ptr<Interpreter> interpreter = std::make_unique<Interpreter>();
-    interpreter->interpret(statements);   
+    interpreter->interpret(statements); 
+    
 }
 
 
@@ -61,20 +62,17 @@ void Lox::report(int line, const std::string& where, const std::string& message)
     hadError = true;
 }
 
+
 void Lox::runFile()
 {
-    std::string buf;
-    std::string line;
+    std::ostringstream buf;
     std::ifstream inputStream(source);
 
-    while (getline(inputStream, line))
-    {
-        buf += line;
-    }
+    buf << inputStream.rdbuf();
 
     if(hadError) std::exit(-1);
     if(hadRuntimeError) std::exit(-2);
 
-    run(buf);
+    run(buf.str());
 }
 }// namespace lox
