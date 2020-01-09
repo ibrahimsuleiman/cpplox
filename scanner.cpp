@@ -96,7 +96,7 @@ void Scanner::scan()
         addToken(RIGHT_PAREN);
         break;
     case '{':
-        addToken(RIGHT_BRACE);
+        addToken(LEFT_BRACE);
         break;
     case '}':
         addToken(RIGHT_BRACE);
