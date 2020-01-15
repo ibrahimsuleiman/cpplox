@@ -18,13 +18,18 @@
 ** program        --> declaration* EOF;
 ** declaration    --> varDecl | statement;
 ** varDecl        --> "var" IDENTIFIER ("=" expression)? ";" ;
-** statement      --> ExprStmt | printStmt | block;
+** statement      --> exprStmt | printStmt | ifStmt | whileStmt | forStmt | block;
+** ifStmt         --> "if" "(" expression ")" ("else" statement)?;
+** whileStmt      --> "while" "(" expression ")" statment ;
+** forStmt        --> "for" "(" varDecl | exprStmt | ";" expression? ";" expression? ")" statement
 ** block          --> "{" declaration* "}";
-** exprStmt       --> expression ";" ;
-** printStmt      --> "print" expression ";" ;
+** exprStmt       --> comma ";" ;
+** printStmt      --> "print" comma ";" ;
 ** comma          --> expression ((",") expression)*
 ** expression     --> assignment;
-** assignment     -->  IDENTIFIER "=" assignment | equality ;
+** assignment     -->  IDENTIFIER "=" assignment | logic_or ;
+** logic_or       -->  logic_and ("or" logic_and)*;
+** logic_and      -->  equality ("and" equality)*;
 ** equality       --> comparison ( ( "!=" | "==" ) comparison )* ;
 ** comparison     --> addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 ** addition       --> multiplication ( ( "-" | "+" ) multiplication )* ;
@@ -51,35 +56,40 @@ namespace lox{
             std::vector<StmtPtr> block();
             StmtPtr expressionStatement();
             StmtPtr printStatement();
+            StmtPtr ifStatement();
+            StmtPtr whileStatement();
+            StmtPtr forStatement();
             ExprPtr comma();
             ExprPtr expression();
             ExprPtr assignment();
+            ExprPtr logicOr();
+            ExprPtr logicAnd();
             ExprPtr equality();
             ExprPtr comparison();
             ExprPtr addition();
             ExprPtr multiplication();
             ExprPtr unary();
             ExprPtr primary();
-            Token consume(TokenType type, std::string message);
+            Token consume(TokenType type, const std::string& message);
             bool match(const std::vector<TokenType>& types);
             /* check type of next token*/
             bool check(const TokenType& type){
                 if(isAtEnd()) return false;
-                return peek()->type == type;
+                return peek().type == type;
             }
             bool isAtEnd(){
-                return peek()->type == END_OF_FILE;
+                return peek().type == END_OF_FILE;
             }
             /*I use raw ptrs because the tokens are owned by the tokens vector*/
-            Token* advance(){
+            Token& advance(){
                 if(!isAtEnd()) current++;
                 return previous();
             }
-            Token* peek(){
-                return tokens[current].get();
+            Token& peek(){
+                return *tokens[current];
             }
-            Token* previous(){
-                return tokens[current - 1].get();
+            Token& previous(){
+                return *tokens[current - 1];
             }
 
             void synchronize();
@@ -88,11 +98,6 @@ namespace lox{
 
         private:
             unsigned int current;
-            /* might change this to unique_ptr and collect the raw pointers
-            ** in Lox instead. To make this possible, I might also want to change
-            ** the scanner tokens vector to unique_ptr's as well. Then, I can return 
-            ** and transfer ownership of the tokens to the parser.
-            ** */
             std::vector<std::shared_ptr<Token> > tokens;
 
     };
