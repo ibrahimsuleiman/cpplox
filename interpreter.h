@@ -47,10 +47,6 @@ namespace lox{
             std::string stringify(const Object& expr);
         private:
             std::unique_ptr<Environment> environment;
-            /* to be used to swap in the correct environment
-            ** in case executeBlock() throws
-            */
-            std::unique_ptr<Environment> previous;
 
     };
 

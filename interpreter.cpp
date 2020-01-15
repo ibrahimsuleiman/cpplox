@@ -8,12 +8,7 @@ Interpreter::Interpreter():environment(new Environment()){}
 
 
 Interpreter::~Interpreter() {
-    /*since we declared the interpreteer static inside of lox, 
-    **we want to return to the enclosing scope
-    **see the definition of executeBlock for details
-    **
-        */
-    std::swap(previous, environment);
+
 }
 Object Interpreter::evaluate(ExprPtr& expr){
     return expr->accept(*this);
@@ -95,6 +90,10 @@ Object Interpreter::visitBinaryExpr(Binary& expr){
         case LESS_EQUAL:
             checkNumberOperands(expr.oper, left, right);
             return std::get<double>(left) <= std::get<double>(right);
+        case EQUAL_EQUAL:
+            return isEqual(left, right);
+        case BANG_EQUAL:
+            return !isEqual(left, right);
         case COMMA:
             return right;
 
@@ -118,7 +117,17 @@ Object Interpreter::visitLiteralExpr(Literal& expr){
     return expr.value;
 }
 Object Interpreter::visitLogicalExpr(Logical& expr){
-    return nullptr;
+    Object left = evaluate(expr.left);
+
+    if(expr.oper.type == OR){
+        /* we don't check the second if the first is true */
+        if(isTruthy(left)) return left;
+    }else{ /* operand is and*/
+        /*we don't check the second if the first is false*/
+        if(!isTruthy(left)) return left;
+    }
+
+    return evaluate(expr.right);
 }
 Object Interpreter::visitSetExpr(Set& expr){
     return nullptr;
@@ -171,22 +180,25 @@ std::string Interpreter::stringify(const Object& obj)
 void Interpreter::executeBlock(std::vector<StmtPtr>& statements, std::unique_ptr<Environment> env)
 {
 
-    std::swap(previous, environment);
+    
+    std::unique_ptr<Environment> previous = std::move(environment);
 
     this->environment.reset();
     this->environment = std::move(env);
 
-    for(auto it = statements.begin(); it != statements.end(); ++it)
-    {
-        execute(*it);
+    try{
+        for(auto it = statements.begin(); it != statements.end(); ++it)
+            {
+                execute(*it);
+            }
+        
     }
-   
-   /*The previous environment should be restored here. 
-   ** But execute can throw an excpetion, so we restore the
-   ** environment here and in the destructor of Interpreter. If execute() emits
-   ** an exception, the destructor of interpreter should restore the environment
-   */
-   std::swap(previous, environment);
+    catch(RuntimeError& e) {
+        environment = std::move(previous);
+        throw;
+    }
+    
+   environment = std::move(previous);
 
 }
 void Interpreter::visitBlockStmt(Block& stmt){
@@ -199,11 +211,15 @@ void Interpreter::visitClassStmt(Class& stmt){
 void Interpreter::visitExpressionStmt(Expression& stmt){
     evaluate(stmt.expression);
 }
+
 void Interpreter::visitFunctionStmt(Function& stmt){
 
 }
 void Interpreter::visitIfStmt(If& stmt){
-
+    if(isTruthy(evaluate(stmt.condition))) execute(stmt.thenBranch);
+    else if(stmt.elseBranch != nullptr) {
+        execute(stmt.elseBranch);
+    }
 }
 void Interpreter::visitPrintStmt(Print& stmt){
     std::cout << stringify(evaluate(stmt.expression))<< "\n" << std::endl;
@@ -220,7 +236,9 @@ void Interpreter::visitVarStmt(Var& stmt){
     environment->define(stmt.name.lexeme, value);
 }
 void Interpreter::visitWhileStmt(While& stmt){
-    
+    while(isTruthy(evaluate(stmt.condition))){
+        execute(stmt.body);
+    }
 }
 
 void Interpreter::execute(StmtPtr& statement)
