@@ -32,7 +32,7 @@ namespace lox{
 
                 /*try enclosing scope if variable is not found*/
                 if(enclosing != nullptr){
-                    enclosing->get(name);
+                    return enclosing->get(name);
                 }
 
                 throw RuntimeError(name, "Undefined Identifier '" + name.lexeme + "' .");
@@ -46,13 +46,14 @@ namespace lox{
                 /*try enclosing scope if variable is not found*/
                 if(enclosing != nullptr){
                     enclosing->define(name.lexeme, value);
+                    return;
                 }
 
                 throw RuntimeError(name, "Undefined Identifier '" + name.lexeme + "' .");
             }
         private:
             std::map<std::string, Object> values;
-            Environment* enclosing;
+            Environment *enclosing;
             
     };
 } // namespace lox
