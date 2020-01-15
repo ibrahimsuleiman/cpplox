@@ -63,7 +63,7 @@ namespace lox{
             Token name;
             std::unique_ptr<Variable> superclass;
             std::vector<FunPtr> methods;
-            Class(const Token& name, std::unique_ptr<Variable>& superclass, std::vector<FunPtr>& methods):
+            Class(const Token& name, std::unique_ptr<Variable> superclass, std::vector<FunPtr> methods):
             name(name), superclass(std::move(superclass)), methods(std::move(methods)){}
 
             void accept(StmtVisitor& visitor)override{
@@ -71,6 +71,7 @@ namespace lox{
             }
 
     };
+
     class Expression : public Stmt{
         public:
             ExprPtr expression;
@@ -79,6 +80,7 @@ namespace lox{
                 visitor.visitExpressionStmt(*this);
             }
     };
+
     class Function : public Stmt{
         public:
             Token name;
@@ -97,7 +99,7 @@ namespace lox{
             StmtPtr thenBranch;
             StmtPtr elseBranch;
             If(ExprPtr condition, StmtPtr thenBranch, StmtPtr elseBranch)
-            :condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(thenBranch)){}
+            :condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)){}
 
             void accept(StmtVisitor& visitor)override{
                 visitor.visitIfStmt(*this);
