@@ -19,7 +19,7 @@ public:
 
 
 
-    std::vector<std::shared_ptr<Token> > scanTokens();
+    std::vector<std::unique_ptr<Token> > scanTokens();
 
     void addToken(TokenType type) {
         addToken(type, nullptr);
@@ -56,28 +56,30 @@ public:
 
 private:
     std::string source;
-    std::vector<std::shared_ptr<Token> > tokens;
+    std::vector<std::unique_ptr<Token> > tokens;
     unsigned int start;
     unsigned int current;
     unsigned int line;
     std::map<std::string, TokenType> keywords =
     {
-        {"and",      AND},
-        {"class",  CLASS},
-        {"else",    ELSE},
-        {"false",  FALSE},
-        {"for",      FOR},
-        {"fun",      FUN},
-        {"if",        IF},
-        {"nil",      NIL},
-        {"or",         OR},
-        {"print",  PRINT},
-        {"return", RETURN},
-        {"super",   SUPER},
-        {"this",     THIS},
-        {"true",     TRUE},
-        {"var",       VAR},
-        {"while",   WHILE}
+        {"and",           AND},
+        {"break",       BREAK},
+        {"class",       CLASS},
+        {"continue", CONTINUE},
+        {"else",         ELSE},
+        {"false",       FALSE},
+        {"for",           FOR},
+        {"fun",           FUN},
+        {"if",             IF},
+        {"nil",           NIL},
+        {"or",             OR},
+        {"print",       PRINT},
+        {"return",     RETURN},
+        {"super",       SUPER},
+        {"this",         THIS},
+        {"true",         TRUE},
+        {"var",           VAR},
+        {"while",       WHILE}
     };
 
 
