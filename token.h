@@ -28,14 +28,14 @@ enum TokenType
     END_OF_FILE
 };
 
-/* the pointer to void in this variant 
+/* the pointer to void in this variant
 ** must never point anywhere. It can only assume a value of
 ** nullptr
  */
 typedef std::variant<double, std::string, bool, void*> Object;
 
 class Token {
-   // typedef std::variant<double, std::string> Object;
+    // typedef std::variant<double, std::string> Object;
 public:
     Token() = default;
     Token(const TokenType& type, const std::string& lexeme,const Object& literal, int line);

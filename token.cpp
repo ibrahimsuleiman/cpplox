@@ -3,7 +3,7 @@
 
 namespace lox
 {
-    
+
 Token::Token(const TokenType& type, const std::string& lexeme,const Object& literal, int line):
     type(type),
     lexeme(lexeme),

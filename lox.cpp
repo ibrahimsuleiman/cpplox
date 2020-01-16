@@ -8,8 +8,8 @@
 
 namespace lox
 {
-    bool Lox::hadError = false;
-    bool Lox::hadRuntimeError = false;
+bool Lox::hadError = false;
+bool Lox::hadRuntimeError = false;
 
 void Lox::runPrompt()
 {
@@ -26,10 +26,10 @@ void Lox::runPrompt()
 
 void Lox::run(const std::string& buf)
 {
-    
+
     if(hadError) exit(-1);
     auto scanner = std::unique_ptr<Scanner>(new Scanner(buf));
-       
+
     auto tokens = scanner->scanTokens();
 
     auto parser = std::make_unique<Parser>(std::move(tokens));
@@ -37,17 +37,17 @@ void Lox::run(const std::string& buf)
     auto statements = parser->parse();
 
     if(hadError) return;
- 
+
     static std::unique_ptr<Interpreter> interpreter = std::make_unique<Interpreter>();
-    interpreter->interpret(statements); 
-    
+    interpreter->interpret(statements);
+
 }
 
 
 void Lox::error(const Token& token, const std::string& msg)
 {
     if(token.type == END_OF_FILE) report(token.line, " at end", msg);
-    else report(token.line," at '" + token.lexeme + "'" , msg);
+    else report(token.line," at '" + token.lexeme + "'", msg);
 }
 
 void Lox::report(int line, const std::string& where, const std::string& message)

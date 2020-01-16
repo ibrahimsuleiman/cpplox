@@ -9,7 +9,7 @@
 
 #include"token.h"
 
-namespace lox{
+namespace lox {
 class Scanner {
 public:
     Scanner(const std::string& source);

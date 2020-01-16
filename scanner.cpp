@@ -24,7 +24,7 @@ std::vector<std::unique_ptr<Token> > Scanner::scanTokens()
     }
 
     tokens.push_back(std::unique_ptr<Token>(new Token(END_OF_FILE, "", nullptr, line)));
-    
+
     return std::move(tokens);
 }
 
@@ -144,20 +144,20 @@ void Scanner::scan()
     case '"':
         matchString();
         break;
-    case '/':                                                       
-        if (match('/')) {                                             
-          // A comment goes until the end of the line.                
-          while (peek() != '\n' && !isAtEnd()) advance();             
+    case '/':
+        if (match('/')) {
+            // A comment goes until the end of the line.
+            while (peek() != '\n' && !isAtEnd()) advance();
         }
         /*TODO: Add support for multiline comments*/
-     /* else if(match('*'))
-        {
-            consumeMultiLineComment();
-        } */
-        else {                                                      
-          addToken(SLASH);                                            
-        }                                                             
-        break;     
+        /* else if(match('*'))
+           {
+               consumeMultiLineComment();
+           } */
+        else {
+            addToken(SLASH);
+        }
+        break;
     default:
         if(isDigit(c))
         {

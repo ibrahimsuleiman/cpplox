@@ -40,82 +40,82 @@
 **                   | "(" expression ")" | IDENTIFIER | "break" | "continue";
 */
 
-namespace lox{
+namespace lox {
 
 
-    class Parser{
-        public:
-            Parser(std::vector<std::unique_ptr<Token> > tokens);
-        
-            StmtPtr declaration();
-            StmtPtr varDeclaration();
-            StmtPtr statement();
-            std::vector<StmtPtr> block();
-            StmtPtr expressionStatement();
-            StmtPtr printStatement();
-            StmtPtr ifStatement();
-            StmtPtr whileStatement();
-            StmtPtr forStatement();
-            ExprPtr comma();
-            ExprPtr expression();
-            ExprPtr assignment();
-            ExprPtr logicOr();
-            ExprPtr logicAnd();
-            ExprPtr equality();
-            ExprPtr comparison();
-            ExprPtr addition();
-            ExprPtr multiplication();
-            ExprPtr unary();
-            ExprPtr primary();
-            Token consume(TokenType type, const std::string& message);
-            bool match(const std::vector<TokenType>& types);
-            
-            bool check(const TokenType& type){
-                if(isAtEnd()) return false;
-                return peek().type == type;
-            }
-            bool isAtEnd(){
-                return peek().type == END_OF_FILE;
-            }
-            
-            Token& advance(){
-                if(!isAtEnd()) current++;
-                return previous();
-            }
-            Token& peek(){
-                return *tokens[current];
-            }
-            Token& previous(){
-                return *tokens[current - 1];
-            }
+class Parser {
+public:
+    Parser(std::vector<std::unique_ptr<Token> > tokens);
 
-            void synchronize();
-            /*return unique_ptr's to be owned by caller (aka Lox::run())*/
-            std::vector<StmtPtr> parse();
+    StmtPtr declaration();
+    StmtPtr varDeclaration();
+    StmtPtr statement();
+    std::vector<StmtPtr> block();
+    StmtPtr expressionStatement();
+    StmtPtr printStatement();
+    StmtPtr ifStatement();
+    StmtPtr whileStatement();
+    StmtPtr forStatement();
+    ExprPtr comma();
+    ExprPtr expression();
+    ExprPtr assignment();
+    ExprPtr logicOr();
+    ExprPtr logicAnd();
+    ExprPtr equality();
+    ExprPtr comparison();
+    ExprPtr addition();
+    ExprPtr multiplication();
+    ExprPtr unary();
+    ExprPtr primary();
+    Token consume(TokenType type, const std::string& message);
+    bool match(const std::vector<TokenType>& types);
 
-        private:
-            unsigned int current;
-            std::vector<std::unique_ptr<Token> > tokens;
+    bool check(const TokenType& type) {
+        if(isAtEnd()) return false;
+        return peek().type == type;
+    }
+    bool isAtEnd() {
+        return peek().type == END_OF_FILE;
+    }
 
-    };
+    Token& advance() {
+        if(!isAtEnd()) current++;
+        return previous();
+    }
+    Token& peek() {
+        return *tokens[current];
+    }
+    Token& previous() {
+        return *tokens[current - 1];
+    }
 
-    class ParseError : public std::exception{
-        public:
-            ParseError()
-            {
-                
-            }   
-            const char* what() const noexcept override
-            {
-                return "Parse Error";
-            } 
-            static ParseError error(const Token& token, const std::string& msg)
-            {
-                Lox::error(token, msg);
-                return ParseError();         
-            }
+    void synchronize();
+    /*return unique_ptr's to be owned by caller (aka Lox::run())*/
+    std::vector<StmtPtr> parse();
 
-    };
+private:
+    unsigned int current;
+    std::vector<std::unique_ptr<Token> > tokens;
+
+};
+
+class ParseError : public std::exception {
+public:
+    ParseError()
+    {
+
+    }
+    const char* what() const noexcept override
+    {
+        return "Parse Error";
+    }
+    static ParseError error(const Token& token, const std::string& msg)
+    {
+        Lox::error(token, msg);
+        return ParseError();
+    }
+
+};
 
 
 }// namespace lox

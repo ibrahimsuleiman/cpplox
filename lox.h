@@ -24,9 +24,9 @@ public:
     {
         report(line, "", message);
     }
-    static void runtimeError(const RuntimeError& err){
-        std::cerr << err.message() << 
-        "\n[line " << err.token.line << "]" << std::endl;
+    static void runtimeError(const RuntimeError& err) {
+        std::cerr << err.message() <<
+                  "\n[line " << err.token.line << "]" << std::endl;
         hadRuntimeError = true;
     }
     static void error(const Token& token, const std::string& msg);
@@ -37,7 +37,7 @@ public:
 
 private:
     std::string source;
-    
+
 
 };
 
