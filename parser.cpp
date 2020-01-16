@@ -2,8 +2,8 @@
 
 namespace lox{
 
-Parser::Parser(const std::vector<std::shared_ptr<Token> >& tokens)
-: current(0), tokens(tokens) {}
+Parser::Parser(std::vector<std::unique_ptr<Token> > tokens)
+: current(0), tokens(std::move(tokens)) {}
 
 
 StmtPtr Parser::declaration()
@@ -288,6 +288,7 @@ ExprPtr Parser::primary()
     }  
 
     if(match({VAR})) return ExprPtr(new Variable(previous()));
+
 
     if(match({IDENTIFIER})) return ExprPtr(new Variable(previous()));
 

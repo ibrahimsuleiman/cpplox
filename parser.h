@@ -37,18 +37,15 @@
 ** unary          -->  ( "!" | "-" ) unary
 **                 | primary ;
 ** primary        --> NUMBER | STRING | "false" | "true" | "nil"
-**                   | "(" expression ")" | IDENTIFIER;
+**                   | "(" expression ")" | IDENTIFIER | "break" | "continue";
 */
 
 namespace lox{
 
-    /*
-    ** The following class implements defines the interface for a recursive descent
-    ** parser for the grammar specified above
-    */
+
     class Parser{
         public:
-            Parser(const std::vector<std::shared_ptr<Token> >& tokens);
+            Parser(std::vector<std::unique_ptr<Token> > tokens);
         
             StmtPtr declaration();
             StmtPtr varDeclaration();
@@ -72,7 +69,7 @@ namespace lox{
             ExprPtr primary();
             Token consume(TokenType type, const std::string& message);
             bool match(const std::vector<TokenType>& types);
-            /* check type of next token*/
+            
             bool check(const TokenType& type){
                 if(isAtEnd()) return false;
                 return peek().type == type;
@@ -80,7 +77,7 @@ namespace lox{
             bool isAtEnd(){
                 return peek().type == END_OF_FILE;
             }
-            /*I use raw ptrs because the tokens are owned by the tokens vector*/
+            
             Token& advance(){
                 if(!isAtEnd()) current++;
                 return previous();
@@ -98,7 +95,7 @@ namespace lox{
 
         private:
             unsigned int current;
-            std::vector<std::shared_ptr<Token> > tokens;
+            std::vector<std::unique_ptr<Token> > tokens;
 
     };
 
