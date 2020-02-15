@@ -1,6 +1,8 @@
 #include"interpreter.h"
 #include"environment.h"
 #include"lox.h"
+#include"runtimeerror.h"
+
 
 namespace lox {
 
