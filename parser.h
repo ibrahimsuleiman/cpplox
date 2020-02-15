@@ -7,6 +7,7 @@
 
 #include"expr.h"
 #include"lox.h"
+#include"parseerror.h"
 #include"stmt.h"
 #include"token.h"
 
@@ -101,26 +102,6 @@ private:
 
 };
 
-class ParseError : public std::exception {
-public:
-    ParseError()
-    {
-
-    }
-    const char* what() const noexcept override
-    {
-        return "Parse Error";
-    }
-    static ParseError error(const Token& token, const std::string& msg)
-    {
-        Lox::error(token, msg);
-        return ParseError();
-    }
-
-};
-
-
-}// namespace lox
-
+} // namespace lox
 
 #endif
