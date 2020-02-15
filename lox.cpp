@@ -28,11 +28,12 @@ void Lox::run(const std::string& buf)
 {
 
     if(hadError) exit(-1);
+
     auto scanner = std::unique_ptr<Scanner>(new Scanner(buf));
 
     auto tokens = scanner->scanTokens();
 
-    auto parser = std::make_unique<Parser>(std::move(tokens));
+    auto parser = std::make_unique<Parser>(tokens);
 
     auto statements = parser->parse();
 
