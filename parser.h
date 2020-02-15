@@ -45,10 +45,11 @@ namespace lox {
 
 class Parser {
 public:
-    Parser(std::vector<std::unique_ptr<Token> > tokens);
+    Parser(const std::vector<Token> &tokens);
 
     StmtPtr declaration();
     StmtPtr varDeclaration();
+    FunPtr function(const std::string &kind);
     StmtPtr statement();
     std::vector<StmtPtr> block();
     StmtPtr expressionStatement();
@@ -67,6 +68,7 @@ public:
     ExprPtr multiplication();
     ExprPtr unary();
     ExprPtr primary();
+    ExprPtr finishCall(ExprPtr callee);
     Token consume(TokenType type, const std::string& message);
     bool match(const std::vector<TokenType>& types);
 
@@ -83,10 +85,10 @@ public:
         return previous();
     }
     Token& peek() {
-        return *tokens[current];
+        return tokens[current];
     }
     Token& previous() {
-        return *tokens[current - 1];
+        return tokens[current - 1];
     }
 
     void synchronize();
@@ -95,7 +97,7 @@ public:
 
 private:
     unsigned int current;
-    std::vector<std::unique_ptr<Token> > tokens;
+    std::vector<Token> tokens;
 
 };
 
