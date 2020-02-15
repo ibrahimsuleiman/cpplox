@@ -2,8 +2,8 @@
 
 namespace lox {
 
-Parser::Parser(std::vector<std::unique_ptr<Token> > tokens)
-    : current(0), tokens(std::move(tokens)) {}
+Parser::Parser(const std::vector<Token> &tokens)
+    : current(0), tokens(tokens) {}
 
 
 StmtPtr Parser::declaration()
@@ -44,11 +44,16 @@ StmtPtr Parser::varDeclaration() {
     return StmtPtr(new Var(name, std::move(initializer)));
 }
 StmtPtr Parser::statement() {
-    if(match({IF})) return ifStatement();
-    if(match({PRINT})) return printStatement();
-    if(match({WHILE})) return whileStatement();
-    if(match({FOR})) return forStatement();
-    if(match({LEFT_BRACE})) return StmtPtr(new Block(block()));
+    if(match({IF})) 
+        return ifStatement();
+    if(match({PRINT})) 
+        return printStatement();
+    if(match({WHILE}))
+         return whileStatement();
+    if(match({FOR}))
+         return forStatement();
+    if(match({LEFT_BRACE}))
+         return StmtPtr(new Block(block()));
     return expressionStatement();
 }
 
@@ -91,7 +96,8 @@ StmtPtr Parser::ifStatement() {
     */
     if(match({ELSE})) elseBlock = statement();
 
-    return StmtPtr(new If(std::move(condition), std::move(thenBlock), std::move(elseBlock)));
+    return StmtPtr(new If(std::move(condition), 
+            std::move(thenBlock), std::move(elseBlock)));
 
 }
 
