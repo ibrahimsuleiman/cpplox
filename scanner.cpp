@@ -12,20 +12,20 @@ Scanner::Scanner(const std::string& source): source(source),  start(0), current(
 void Scanner::addToken(TokenType type, Object literal)
 {
     std::string text(&source[start], &source[current]);
-    tokens.push_back(std::unique_ptr<Token>(new Token(type, text, literal, line)));
+    tokens.push_back(Token(type, text, literal, line));
 }
 
-std::vector<std::unique_ptr<Token> > Scanner::scanTokens()
+std::vector<Token> Scanner::scanTokens()
 {
-    while(!isAtEnd())
+  while(!isAtEnd())
     {
         start = current;
         scan();
     }
 
-    tokens.push_back(std::unique_ptr<Token>(new Token(END_OF_FILE, "", nullptr, line)));
+    tokens.push_back(Token(END_OF_FILE, "", nullptr, line));
 
-    return std::move(tokens);
+    return tokens;
 }
 
 bool Scanner::match(const char expected)

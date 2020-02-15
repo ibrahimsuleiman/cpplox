@@ -19,7 +19,7 @@ public:
 
 
 
-    std::vector<std::unique_ptr<Token> > scanTokens();
+    std::vector<Token> scanTokens();
 
     void addToken(TokenType type) {
         addToken(type, nullptr);
@@ -56,7 +56,7 @@ public:
 
 private:
     std::string source;
-    std::vector<std::unique_ptr<Token> > tokens;
+    std::vector<Token> tokens;
     unsigned int start;
     unsigned int current;
     unsigned int line;
