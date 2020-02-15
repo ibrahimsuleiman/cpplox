@@ -6,6 +6,7 @@
 
 #include"token.h"
 #include"interpreter.h"
+#include"runtimeerror.h"
 
 namespace lox {
 class Environment {
